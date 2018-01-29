@@ -14,9 +14,25 @@ export default function createComponent(MaterialUIComponent, mapProps) {
       return this.component
     }
 
+    allowClickEventOnInputButton = (onBlur) => (event) => {
+      const { relatedTarget } = event;
+      if (relatedTarget && relatedTarget.getAttribute('type') === 'button') {
+        event.preventDefault();
+      } else if (onBlur) {
+        onBlur(event);
+      }
+    }
+
     render() {
+      const propsToMap = {
+        ...this.props
+      };
+      if (propsToMap.input && propsToMap.input.onBlur) {
+        propsToMap.input.onBlur = this.allowClickEventOnInputButton(propsToMap.input.onBlur);
+      }
+
       return createElement(MaterialUIComponent, {
-        ...mapProps(this.props),
+        ...mapProps(propsToMap),
         ref: (!isStateLess(MaterialUIComponent) ? el => this.component = el : null)
       })
     }
